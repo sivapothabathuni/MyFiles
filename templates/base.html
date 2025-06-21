@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>{% block title %}OurDocs{% endblock %}</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <title>Document Drive</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-  </nav>
-  <div class="content">
+  <header>
+    <h1>📁 Document Drive</h1>
+    {% if session.logged_in %}
+      <a href="/logout">Logout</a>
+    {% endif %}
+  </header>
+  <main>
     {% block content %}{% endblock %}
-  </div>
+  </main>
 </body>
 </html>
