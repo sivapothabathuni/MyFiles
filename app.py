@@ -1,4 +1,18 @@
-from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
+import json
+
+PASSWORD_FILE = 'config.json'
+
+def load_password():
+    if os.path.exists(PASSWORD_FILE):
+        with open(PASSWORD_FILE) as f:
+            data = json.load(f)
+            return data.get('password', PASSWORD)
+    return PASSWORD
+
+def save_password(new_password):
+    with open(PASSWORD_FILE, 'w') as f:
+        json.dump({'password': new_password}, f)
+        from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
 import os
 
 app = Flask(__name__)
