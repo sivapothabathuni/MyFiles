@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, send_from_directory
 import os
 import json
 
-app = Flask(_name_)
+app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Change this
 
 UPLOAD_FOLDER = 'uploads'
@@ -90,5 +90,5 @@ def logout():
     session.pop('logged_in', None)
     return redirect('/login')
 
-if _name_ == '_main':  # <-- Fixed: should be 'main_'
+if __name__ == '_main':  # <-- Fixed: should be 'main_'
     app.run(debug=True)
