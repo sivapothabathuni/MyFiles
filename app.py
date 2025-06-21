@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
 import os
 
-app = Flask(_name_)
+app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Change this
 
 UPLOAD_FOLDER = 'uploads'
