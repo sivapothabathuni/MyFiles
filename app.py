@@ -55,5 +55,5 @@ def logout():
     session.pop('logged_in', None)
     return redirect('/login')
 
-if _name_ == '_main_':
+if __name__ == '_main_':
     app.run(debug=True)
