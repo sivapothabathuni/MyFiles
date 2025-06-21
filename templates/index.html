@@ -1,8 +1,18 @@
 {% extends "base.html" %}
-
-{% block title %}Welcome{% endblock %}
-
 {% block content %}
-  <h1>Welcome to OurDocs.website!</h1>
-  <p>Your documentation hub is live! 🚀</p>
-{% endblock %}
+  <form action="/" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Uploaded Documents</h2>
+  <ul>
+    {% for file in files %}
+      <li>
+        {{ file }}
+        [<a href="/uploads/{{ file }}" download>Download</a>]
+        [<a href="/delete/{{ file }}">Delete</a>]
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
