@@ -3,7 +3,7 @@ import os
 import json
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'  # Change this
+app.secret_key = 'supersecretkey'  # Change this for production
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
@@ -54,6 +54,9 @@ def download_file(filename):
 
 @app.route('/delete/<filename>')
 def delete_file(filename):
+    if 'logged_in' not in session:
+        return redirect('/login')
+
     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return redirect('/')
 
@@ -90,5 +93,7 @@ def logout():
     session.pop('logged_in', None)
     return redirect('/login')
 
-if __name__ == '_main':  # <-- Fixed: should be 'main_'
-    app.run(debug=True)
+if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 10000))  # Default port 10000 if not set
+    app.run(host='0.0.0.0', port=port)
