@@ -1,108 +1,130 @@
-/* Reset some default browser styles */
-body, h1, h2, h3, h4, h5, h6, p, ul {
-    margin: 0;
-    padding: 0;
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
-
 body {
-    font-family: 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8f9fb;
-    color: #212529;
-    line-height: 1.6;
-    font-size: 16px;
-    padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #1f293a;
 }
-
-/* Header / Title */
-header {
-    background-color: #343a40;
-    color: white;
-    padding: 1rem 2rem;
-    text-align: center;
-    border-radius: 8px;
-    margin-bottom: 2rem;
+.container {
+  position: relative;
+  width: 256px;
+  height: 256px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
-header h1 {
-    font-size: 2rem;
+.container span {
+  position: absolute;
+  left: 0;
+  width: 32px;
+  height: 6px;
+  background: #2c4766;
+  border-radius: 8px;
+  transform-origin: 128px;
+  transform: scale(2.2) rotate(calc(var(--i) * (360deg / 50)));
+  animation: animateBlink 3s linear infinite;
+  animation-delay: calc(var(--i) * (3s / 50));
 }
-
-/* Navigation Bar */
-nav {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+@keyframes animateBlink {
+  0% {
+    background: #0ef;
+  }
+  25% {
+    background: #2c4766;
+  }
 }
-
-nav a {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
+.login-box {
+  position: absolute;
+  width: 400px;
 }
-
-nav a:hover {
-    text-decoration: underline;
+.login-box form {
+  width: 100%;
+  padding: 0 50px;
 }
-
-/* File List or Content Display */
-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+h2 {
+  font-size: 2em;
+  color: #0ef;
+  text-align: center;
 }
-
-ul {
-    list-style-type: none;
+.input-box {
+  position: relative;
+  margin: 25px 0;
 }
-
-ul li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
+.input-box input {
+  width: 100%;
+  height: 50px;
+  background: transparent;
+  border: 2px solid #2c4766;
+  outline: none;
+  border-radius: 40px;
+  font-size: 1em;
+  color: #fff;
+  padding: 0 20px;
+  transition: 0.5s ease;
 }
-
-a.download-link {
-    color: #28a745;
-    font-weight: bold;
-    text-decoration: none;
+.input-box input:focus,
+.input-box input:valid {
+  border-color: #0ef;
 }
-
-a.download-link:hover {
-    text-decoration: underline;
+.input-box label {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  font-size: 1em;
+  color: #fff;
+  pointer-events: none;
+  transition: 0.5s ease;
 }
-
-/* Upload Form */
-form {
-    margin-top: 1rem;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+.input-box input:focus ~ label,
+.input-box input:valid ~ label {
+  top: 1px;
+  font-size: 0.8em;
+  background: #1f293a;
+  padding: 0 6px;
+  color: #0ef;
 }
-
-input[type="file"] {
-    padding: 0.3rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.forgot-pass {
+  margin: -15px 0 10px;
+  text-align: center;
 }
-
-input[type="submit"] {
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
+.forgot-pass a {
+  font-size: 0.85em;
+  color: #fff;
+  text-decoration: none;
 }
-
-input[type="submit"]:hover {
-    background-color: #0056b3;
+.forgot-pass a:hover {
+  text-decoration: underline;
 }
-
-/* Footer */
-footer {
-    margin-top: 2rem;
-    text-align: center;
-    font-size: 0.875rem;
-    color: #6c757d;
+.btn {
+  width: 100%;
+  height: 45px;
+  background: #0ef;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #1f293a;
+  font-weight: 600;
+}
+.signup-link {
+  margin: 20px 0 10px;
+  text-align: center;
+}
+.signup-link a {
+  font-size: 1em;
+  color: #0ef;
+  text-decoration: none;
+  font-weight: 600;
+}
+.signup-link a:hover {
+  text-decoration: underline;
 }
