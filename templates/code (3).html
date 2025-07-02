@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuSphere - Modern Documentation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .auth-container {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(79, 70, 229, 0.05));
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .document-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .document-card:hover {
+            border-left-color: var(--primary);
+        }
+
+        /* File upload dropzone */
+        .dropzone {
+            border: 2px dashed var(--gray);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .dropzone.active {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        /* Document type colors */
+        .doc-pdf { border-left-color: #f87171; }
+        .doc-docx { border-left-color: #60a5fa; }
+        .doc-ppt { border-left-color: #fbbf24; }
+        .doc-xls { border-left-color: #34d399; }
+        .doc-img { border-left-color: #a78bfa; }
+        .doc-txt { border-left-color: #9ca3af; }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c7d2fe;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a5b4fc;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="min-h-screen">
+        <!-- Dashboard Section (Initially Hidden) -->
+        <div id="dashboard-section" class="hidden min-h-screen">
+            <!-- Navigation -->
+            <nav class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16 items-center">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 flex items-center">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/02a88cd1-c7b5-47dd-ae98-b94cba72f4c9.png" alt="DocuSphere logo: A modern document icon with blue gradient background" class="h-8 w-8 rounded-full">
+                                <span class="ml-2 text-xl font-bold text-gray-900">DocuSphere</span>
+                            </div>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-center space-x-4">
+                                <a href="#" class="nav-link px-3 py-2 text-sm font-medium text-gray-900">Documents</a>
+                                <a href="#" class="nav-link px-3 py-2 text-sm font-medium text-gray-900">Analytics</a>
+                                <a href="#" class="nav-link px-3 py-2 text-sm font-medium text-gray-900">Team</a>
+                            </div>
+                        </div>
+                        <div class="hidden md:block">
+                            <button id="logout-btn" class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all">Logout</button>
+                        </div>
+                        <div class="-mr-2 flex md:hidden">
+                            <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                                <span class="sr-only">Open main menu</span>
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <!-- Dashboard Header -->
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Document Dashboard</h1>
+                        <p class="mt-1 text-sm text-gray-500">Manage all your documents in one place</p>
+                    </div>
+                    <button id="upload-btn" class="px-4 py-2 rounded-md text-sm font-medium text-white gradient-bg hover:shadow-md transition-all">
+                        <i class="fas fa-plus mr-2"></i>Upload Document
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-file text-indigo-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Documents</dt>
+                                        <dd>
+                                            <div class="text-lg font-medium text-gray-900" id="total-docs">0</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                        <i class="fas fa-file-pdf text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">PDF Files</dt>
+                                        <dd>
+                                            <div class="text-lg font-medium text-gray-900" id="pdf-docs">0</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <i class="fas fa-file-word text-blue-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Word Docs</dt>
+                                        <dd>
+                                            <div class="text-lg font-medium text-gray-900" id="word-docs">0</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                        <i class="fas fa-file-image text-purple-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Images</dt>
+                                        <dd>
+                                            <div class="text-lg font-medium text-gray-900" id="image-docs">0</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Table -->
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">All Documents</h3>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input id="search-docs" type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search documents...">
+                        </div>
+                    </div>
+                    <div class="px-4 pycd-5 sm:px-6">
+                        <div id="documents-table" class="overflow-x-auto">
+                            <!-- Documents will be loaded here -->
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Name
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Type
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Size
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Uploaded
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="documents-list" class="bg-white divide-y divide-gray-200">
+                                    <!-- Documents will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Document Modal -->
+        <div id="upload-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                    <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+                    <div class="absolute top-0 right-0 pt-4 pr-4">
+                        <button id="close-upload" type="button" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span class="sr-only">Close</span>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-file-upload text-4xl text-indigo-600 mb-4"></i>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Upload Documents</h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Drag and drop files here or click to browse
+                        </p>
+                    </div>
+                    <div class="mt-5">
+                        <div id="dropzone" class="dropzone flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                        <span>Select files</span>
+                                        <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple>
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    PDF, DOCX, PPT, XLS, JPG, PNG up to 10MB
+                                </p>
+                            </div>
+                        </div>
+                        <div id="upload-progress" class="hidden mt-4 space-y-2">
+                            <h4 class="text-sm font-medium text-gray-700">Uploading files:</h4>
+                            <!-- Progress bars will be added here -->
+                        </div>
+                        <div id="upload-preview" class="mt-4">
+                            <!-- Files to be uploaded will be previewed here -->
+                        </div>
+                        <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                            <button id="start-upload" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm">
+                                Upload Files
+                            </button>
+                            <button id="cancel-upload" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Preview Modal -->
+        <div id="preview-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                    <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full sm:p-6">
+                    <div class="absolute top-0 right-0 pt-4 pr-4">
+                        <button id="close-preview" type="button" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span class="sr-only">Close</span>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="preview-title">Document Preview</h3>
+                            <p class="mt-1 text-sm text-gray-500" id="preview-subtitle"></p>
+                        </div>
+                        <div class="mt-5">
+                            <div id="preview-content" class="h-96 w-full bg-gray-100 rounded-lg flex items-center justify-center">
+                                <p class="text-gray-500">Select a document to preview</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-6">
+                        <div class="flex justify-between">
+                            <div>
+                                <button id="download-doc" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <i class="fas fa-download mr-2"></i> Download
+                                </button>
+                                <button id="share-doc" type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <i class="fas fa-share-alt mr-2"></i> Share
+                                </button>
+                            </div>
+                            <button id="delete-doc" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                <i class="fas fa-trash mr-2"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Section (Initially Visible) -->
+        <div id="auth-section" class="flex flex-col min-h-screen">
+            <!-- Navigation -->
+            <nav class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16 items-center">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 flex items-center">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/300eac18-cba0-4447-afab-1be95679a01e.png" alt="DocuSphere logo: A modern document icon with blue gradient background" class="h-8 w-8 rounded-full">
+                                <span class="ml-2 text-xl font-bold text-gray-900">DocuSphere</span>
+                            </div>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-center space-x-4">
+                                <a href="#" class="nav-link px-3 py-2 text-sm font-medium text-gray-900">Features</a>
+                                <a href="#" class="nav-link px-3 py-2 text-sm font-medium text-gray-900">Pricing</a>
+                                <a href="#" class="nav-link px-3 py-2 text-sm font-medium text-gray-900">Contact</a>
+                            </div>
+                        </div>
+                        <div class="hidden md:block">
+                            <button id="show-login" class="px-4 py-2 rounded-md text-sm font-medium text-white gradient-bg hover:shadow-md transition-all">Login</button>
+                        </div>
+                        <div class="-mr-2 flex md:hidden">
+                            <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                                <span class="sr-only">Open main menu</span>
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Hero Section -->
+            <div class="gradient-bg text-white py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center">
+                        <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl fade-in">
+                            <span class="block">Modern Documentation</span>
+                            <span class="block text-indigo-200">Made Simple</span>
+                        </h1>
+                        <p class="mt-3 max-w-md mx-auto text-base text-indigo-50 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl fade-in delay-1">
+                            Upload, manage, and collaborate on documentation with your team in one intuitive platform.
+                        </p>
+                        <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8 fade-in delay-2">
+                            <div class="rounded-md shadow">
+                                <button id="show-signup" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                                    Get started
+                                </button>
+                            </div>
+                            <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+                                <button class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg md:px-10">
+                                    Learn more
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="py-12 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="lg:text-center">
+                        <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Features</h2>
+                        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                            Everything you need for documentation
+                        </p>
+                        <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                            Powerful features designed to make document management effortless.
+                        </p>
+                    </div>
+
+                    <div class="mt-10">
+                        <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+                            <div class="relative card p-6 bg-white rounded-lg shadow-sm hover:shadow-md">
+                                <div class="absolute -top-4 left-6 bg-indigo-500 rounded-lg p-2">
+                                    <i class="fas fa-cloud-upload-alt text-white text-xl"></i>
+                                </div>
+                                <h3 class="ml-10 text-lg font-medium text-gray-900">Easy Upload</h3>
+                                <p class="mt-2 ml-10 text-base text-gray-500">
+                                    Drag and drop your documents or browse your files to upload. Supports all major document formats.
+                                </p>
+                            </div>
+
+                            <div class="relative card p-6 bg-white rounded-lg shadow-sm hover:shadow-md">
+                                <div class="absolute -top-4 left-6 bg-indigo-500 rounded-lg p-2">
+                                    <i class="fas fa-folder-open text-white text-xl"></i>
+                                </div>
+                                <h3 class="ml-10 text-lg font-medium text-gray-900">Organize Files</h3>
+                                <p class="mt-2 ml-10 text-base text-gray-500">
+                                    Categorize your documents with tags and folders for easy access and organization.
+                                </p>
+                            </div>
+
+                            <div class="relative card p-6 bg-white rounded-lg shadow-sm hover:shadow-md">
+                                <div class="absolute -top-4 left-6 bg-indigo-500 rounded-lg p-2">
+                                    <i class="fas fa-users text-white text-xl"></i>
+                                </div>
+                                <h3 class="ml-10 text-lg font-medium text-gray-900">Team Collaboration</h3>
+                                <p class="mt-2 ml-10 text-base text-gray-500">
+                                    Share documents with team members and collaborate in real-time with comments and annotations.
+                                </p>
+                            </div>
+
+                            <div class="relative card p-6 bg-white rounded-lg shadow-sm hover:shadow-md">
+                                <div class="absolute -top-4 left-6 bg-indigo-500 rounded-lg p-2">
+                                    <i class="fas fa-shield-alt text-white text-xl"></i>
+                                </div>
+                                <h3 class="ml-10 text-lg font-medium text-gray-900">Secure Storage</h3>
+                                <p class="mt-2 ml-10 text-base text-gray-500">
+                                    Your documents are securely stored with encryption and access controls to protect your information.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auth Modals -->
+            <!-- Login Modal -->
+            <div id="login-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                    </div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6">
+                        <div class="absolute top-0 right-0 pt-4 pr-4">
+                            <button id="close-login" type="button" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <span class="sr-only">Close</span>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a78a5979-14b6-4da1-ae8b-654d973d6046.png" alt="DocuSphere login icon showing a document with a login symbol" class="mx-auto h-20 w-20 rounded-full">
+                            <h3 class="mt-3 text-lg leading-6 font-medium text-gray-900">Sign in to your account</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Or <button id="switch-to-signup" class="font-medium text-indigo-600 hover:text-indigo-500">start your free trial</button>
+                            </p>
+                        </div>
+                        <div class="mt-5">
+                            <form id="login-form" class="space-y-6">
+                                <div>
+                                    <label for="login-email" class="block text-sm font-medium text-gray-700">Email address</label>
+                                    <div class="mt-1">
+                                        <input id="login-email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm input-field">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                                    <div class="mt-1">
+                                        <input id="login-password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm input-field">
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                        <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                                    </div>
+
+                                    <div class="text-sm">
+                                        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 btn-primary">
+                                        Sign in
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signup Modal -->
+            <div id="signup-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                    </div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6">
+                        <div class="absolute top-0 right-0 pt-4 pr-4">
+                            <button id="close-signup" type="button" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <span class="sr-only">Close</span>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b29a6dfd-2552-4ee5-ba80-fd36e081ced0.png" alt="DocuSphere signup icon showing a document with a plus symbol" class="mx-auto h-20 w-20 rounded-full">
+                            <h3 class="mt-3 text-lg leading-6 font-medium text-gray-900">Create your account</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Already have an account? <button id="switch-to-login" class="font-medium text-indigo-600 hover:text-indigo-500">Sign in</button>
+                            </p>
+                        </div>
+                        <div class="mt-5">
+                            <form id="signup-form" class="space-y-6">
+                                <div>
+                                    <label for="signup-name" class="block text-sm font-medium text-gray-700">Full name</label>
+                                    <div class="mt-1">
+                                        <input id="signup-name" name="name" type="text" autocomplete="name" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm input-field">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="signup-email" class="block text-sm font-medium text-gray-700">Email address</label>
+                                    <div class="mt-1">
+                                        <input id="signup-email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm input-field">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label>
+                                    <div class="mt-1">
+                                        <input id="signup-password" name="password" type="password" autocomplete="new-password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm input-field">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="signup-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                                    <div class="mt-1">
+                                        <input id="signup-confirm-password" name="confirm-password" type="password" autocomplete="new-password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm input-field">
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="terms" name="terms" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" required>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="terms" class="font-medium text-gray-700">I agree to the</label>
+                                        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Terms and Conditions</a>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 btn-primary">
+                                        Create Account
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Document Management System
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample data of documents with file content placeholders
+            let documents = [
+                { id: 1, name: 'Project Proposal.pdf', type: 'pdf', size: '2.4 MB', uploaded: '2 days ago', content: 'Sample PDF content' },
+                { id: 2, name: 'Technical Specifications.docx', type: 'docx', size: '1.1 MB', uploaded: '1 week ago', content: 'Sample DOCX content' },
+                { id: 3, name: 'UI Mockups.pptx', type: 'ppt', size: '4.7 MB', uploaded: '3 days ago', url: '#' },
+                { id: 4, name: 'Budget Spreadsheet.xlsx', type: 'xls', size: '0.8 MB', uploaded: '5 hours ago', url: '#' },
+                { id: 5, name: 'Team Photo.jpg', type: 'img', size: '3.2 MB', uploaded: '1 day ago', url: '#' },
+                { id: 6, name: 'Meeting Notes.txt', type: 'txt', size: '0.1 MB', uploaded: '30 minutes ago', url: '#' }
+            ];
+
+            // Auth elements
+            const authSection = document.getElementById('auth-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const showLoginBtn = document.getElementById('show-login');
+            const showSignupBtn = document.getElementById('show-signup');
+            const loginModal = document.getElementById('login-modal');
+            const signupModal = document.getElementById('signup-modal');
+            const closeLoginBtn = document.getElementById('close-login');
+            const closeSignupBtn = document.getElementById('close-signup');
+            const switchToSignup = document.getElementById('switch-to-signup');
+            const switchToLogin = document.getElementById('switch-to-login');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            // Document elements
+            const uploadBtn = document.getElementById('upload-btn');
+            const uploadModal = document.getElementById('upload-modal');
+            const closeUploadBtn = document.getElementById('close-upload');
+            const fileUpload = document.getElementById('file-upload');
+            const dropzone = document.getElementById('dropzone');
+            const uploadProgress = document.getElementById('upload-progress');
+            const uploadPreview = document.getElementById('upload-preview');
+            const startUploadBtn = document.getElementById('start-upload');
+            const cancelUploadBtn = document.getElementById('cancel-upload');
+            const documentsList = document.getElementById('documents-list');
+            const searchDocs = document.getElementById('search-docs');
+            const totalDocs = document.getElementById('total-docs');
+            const pdfDocs = document.getElementById('pdf-docs');
+            const wordDocs = document.getElementById('word-docs');
+            const imageDocs = document.getElementById('image-docs');
+            const previewModal = document.getElementById('preview-modal');
+            const closePreviewBtn = document.getElementById('close-preview');
+            const previewTitle = document.getElementById('preview-title');
+            const previewSubtitle = document.getElementById('preview-subtitle');
+            const previewContent = document.getElementById('preview-content');
+            const downloadDocBtn = document.getElementById('download-doc');
+            const shareDocBtn = document.getElementById('share-doc');
+            const deleteDocBtn = document.getElementById('delete-doc');
+
+            // Current document being viewed
+            let currentDocument = null;
+            let filesToUpload = [];
+
+            // Initialize the app
+            function init() {
+                updateDocumentStats();
+                renderDocuments();
+                setupEventListeners();
+            }
+
+            // Set up all event listeners
+            function setupEventListeners() {
+                // Auth related
+                showLoginBtn.addEventListener('click', () => toggleModal(loginModal));
+                showSignupBtn.addEventListener('click', () => toggleModal(signupModal));
+                closeLoginBtn.addEventListener('click', () => toggleModal(loginModal));
+                closeSignupBtn.addEventListener('click', () => toggleModal(signupModal));
+                switchToSignup.addEventListener('click', () => {
+                    toggleModal(loginModal);
+                    toggleModal(signupModal);
+                });
+                switchToLogin.addEventListener('click', () => {
+                    toggleModal(signupModal);
+                    toggleModal(loginModal);
+                });
+                loginForm.addEventListener('submit', handleLogin);
+                signupForm.addEventListener('submit', handleSignup);
+                logoutBtn.addEventListener('click', handleLogout);
+
+                // Document related
+                uploadBtn.addEventListener('click', () => toggleModal(uploadModal));
+                closeUploadBtn.addEventListener('click', () => {
+                    toggleModal(uploadModal);
+                    resetUploadForm();
+                });
+                cancelUploadBtn.addEventListener('click', () => {
+                    toggleModal(uploadModal);
+                    resetUploadForm();
+                });
+                fileUpload.addEventListener('change', handleFileSelect);
+                startUploadBtn.addEventListener('click', handleFileUpload);
+                dropzone.addEventListener('dragover', handleDragOver);
+                dropzone.addEventListener('dragleave', handleDragLeave);
+                dropzone.addEventListener('drop', handleDrop);
+                searchDocs.addEventListener('input', filterDocuments);
+                closePreviewBtn.addEventListener('click', () => toggleModal(previewModal));
+                downloadDocBtn.addEventListener('click', downloadDocument);
+                shareDocBtn.addEventListener('click', shareDocument);
+                deleteDocBtn.addEventListener('click', deleteDocument);
+            }
+
+            // Toggle modal visibility
+            function toggleModal(modal) {
+                modal.classList.toggle('hidden');
+            }
+
+            // Handle login form submission
+            function handleLogin(e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                // Simple validation
+                if (email && password) {
+                    // In a real app, this would make an API call to authenticate
+                    authSection.classList.add('hidden');
+                    dashboardSection.classList.remove('hidden');
+                    toggleModal(loginModal);
+                }
+            }
+
+            // Handle signup form submission
+            function handleSignup(e) {
+                e.preventDefault();
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirmPassword = document.getElementById('signup-confirm-password').value;
+                
+                // Simple validation
+                if (name && email && password && confirmPassword) {
+                    if (password !== confirmPassword) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+                    
+                    // In a real app, this would make an API call to register
+                    authSection.classList.add('hidden');
+                    dashboardSection.classList.remove('hidden');
+                    toggleModal(signupModal);
+                }
+            }
+
+            // Handle logout
+            function handleLogout() {
+                dashboardSection.classList.add('hidden');
+                authSection.classList.remove('hidden');
+            }
+
+            // Update document statistics
+            function updateDocumentStats() {
+                totalDocs.textContent = documents.length;
+                pdfDocs.textContent = documents.filter(doc => doc.type === 'pdf').length;
+                wordDocs.textContent = documents.filter(doc => doc.type === 'docx').length;
+                imageDocs.textContent = documents.filter(doc => doc.type === 'img').length;
+            }
+
+            // Render documents in the table
+            function renderDocuments(filteredDocs = null) {
+                const docsToRender = filteredDocs || documents;
+                documentsList.innerHTML = '';
+                
+                if (docsToRender.length === 0) {
+                    documentsList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                No documents found. Upload your first document to get started.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                docsToRender.forEach(doc => {
+                    const row = document.createElement('tr');
+                    row.className = 'document-card hover:bg-gray-50 cursor-pointer';
+                    row.setAttribute('data-id', doc.id);
+
+                    // Get icon based on file type
+                    let icon, typeClass;
+                    switch(doc.type) {
+                        case 'pdf':
+                            icon = '<i class="fas fa-file-pdf text-red-500"></i>';
+                            typeClass = 'doc-pdf';
+                            break;
+                        case 'docx':
+                            icon = '<i class="fas fa-file-word text-blue-500"></i>';
+                            typeClass = 'doc-docx';
+                            break;
+                        case 'ppt':
+                            icon = '<i class="fas fa-file-powerpoint text-yellow-500"></i>';
+                            typeClass = 'doc-ppt';
+                            break;
+                        case 'xls':
+                            icon = '<i class="fas fa-file-excel text-green-500"></i>';
+                            typeClass = 'doc-xls';
+                            break;
+                        case 'img':
+                            icon = '<i class="fas fa-file-image text-purple-500"></i>';
+                            typeClass = 'doc-img';
+                            break;
+                        default:
+                            icon = '<i class="fas fa-file-alt text-gray-500"></i>';
+                            typeClass = 'doc-txt';
+                    }
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center">
+                                    ${icon}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${doc.name}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${doc.type === 'pdf' ? 'red' : doc.type === 'docx' ? 'blue' : doc.type === 'ppt' ? 'yellow' : doc.type === 'xls' ? 'green' : doc.type === 'img' ? 'purple' : 'gray'}-100 text-${doc.type === 'pdf' ? 'red' : doc.type === 'docx' ? 'blue' : doc.type === 'ppt' ? 'yellow' : doc.type === 'xls' ? 'green' : doc.type === 'img' ? 'purple' : 'gray'}-800 capitalize">
+                                ${doc.type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${doc.size}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${doc.uploaded}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-doc" data-id="${doc.id}">View</button>
+                            <button class="text-gray-600 hover:text-gray-900 delete-doc" data-id="${doc.id}">Delete</button>
+                        </td>
+                    `;
+
+                    // Add the type class to the row for the left border color
+                    row.classList.add(typeClass);
+
+                    documentsList.appendChild(row);
+                });
+
+                // Add event listeners to the newly created buttons
+                document.querySelectorAll('.view-doc').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const docId = parseInt(btn.getAttribute('data-id'));
+                        viewDocument(docId);
+                    });
+                });
+
+                document.querySelectorAll('.delete-doc').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const docId = parseInt(btn.getAttribute('data-id'));
+                        deleteDocumentById(docId);
+                    });
+                });
+
+                // Add click event to row for preview
+                document.querySelectorAll('tr[data-id]').forEach(row => {
+                    row.addEventListener('click', () => {
+                        const docId = parseInt(row.getAttribute('data-id'));
+                        viewDocument(docId);
+                    });
+                });
+            }
+
+            // Filter documents based on search input
+            function filterDocuments() {
+                const searchTerm = searchDocs.value.toLowerCase();
+                if (searchTerm === '') {
+                    renderDocuments();
+                    return;
+                }
+
+                const filtered = documents.filter(doc => 
+                    doc.name.toLowerCase().includes(searchTerm) || 
+                    doc.type.toLowerCase().includes(searchTerm)
+                );
+                renderDocuments(filtered);
+            }
+
+            // View document preview
+            function viewDocument(docId) {
+                currentDocument = documents.find(doc => doc.id === docId);
+                if (currentDocument) {
+                    previewTitle.textContent = currentDocument.name;
+                    previewSubtitle.textContent = `${currentDocument.type.toUpperCase()} - ${currentDocument.size}`;
+                    
+                    // In a real app, this would display the actual document content
+                    // For this demo, we'll show a placeholder based on file type
+                    let previewHTML = '';
+                    switch(currentDocument.type) {
+                        case 'pdf':
+                            previewHTML = `
+                                <div class="w-full h-full flex items-center justify-center flex-col">
+                                    <i class="fas fa-file-pdf text-8xl text-red-500 mb-4"></i>
+                                    <p class="text-gray-600">PDF preview would be displayed here</p>
+                                </div>
+                            `;
+                            break;
+                        case 'docx':
+                            previewHTML = `
+                                <div class="w-full h-full flex items-center justify-center flex-col">
+                                    <i class="fas fa-file-word text-8xl text-blue-500 mb-4"></i>
+                                    <p class="text-gray-600">Word document preview would be displayed here</p>
+                                </div>
+                            `;
+                            break;
+                        case 'ppt':
+                            previewHTML = `
+                                <div class="w-full h-full flex items-center justify-center flex-col">
+                                    <i class="fas fa-file-powerpoint text-8xl text-yellow-500 mb-4"></i>
+                                    <p class="text-gray-600">PowerPoint preview would be displayed here</p>
+                                </div>
+                            `;
+                            break;
+                        case 'xls':
+                            previewHTML = `
+                                <div class="w-full h-full flex items-center justify-center flex-col">
+                                    <i class="fas fa-file-excel text-8xl text-green-500 mb-4"></i>
+                                    <p class="text-gray-600">Excel preview would be displayed here</p>
+                                </div>
+                            `;
+                            break;
+                        case 'img':
+                            previewHTML = `
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e4f8d67d-a5e1-4546-94aa-c82839b2d26c.png" alt="Preview of uploaded image document" class="max-w-full max-h-full object-contain">
+                                </div>
+                            `;
+                            break;
+                        default:
+                            previewHTML = `
+                                <div class="w-full h-full flex items-center justify-center flex-col">
+                                    <i class="fas fa-file-alt text-8xl text-gray-500 mb-4"></i>
+                                    <p class="text-gray-600">Text document preview would be displayed here</p>
+                                </div>
+                            `;
+                    }
+                    previewContent.innerHTML = previewHTML;
+                    toggleModal(previewModal);
+                }
+            }
+
+            // Download document
+            function downloadDocument() {
+                if (currentDocument) {
+                    const blob = new Blob([currentDocument.content], { type: `application/${currentDocument.type}` });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentDocument.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+            }
+
+            // Share document
+            function shareDocument() {
+                if (currentDocument) {
+                    alert(`Sharing: ${currentDocument.name}\nIn a real app, this would open a share dialog.`);
+                }
+            }
+
+            // Delete document
+            function deleteDocument() {
+                if (currentDocument) {
+                    if (confirm(`Are you sure you want to delete ${currentDocument.name}?`)) {
+                        deleteDocumentById(currentDocument.id);
+                        toggleModal(previewModal);
+                    }
+                }
+            }
+
+            // Delete document by ID
+            function deleteDocumentById(docId) {
+                documents = documents.filter(doc => doc.id !== docId);
+                updateDocumentStats();
+                renderDocuments();
+            }
+
+            // Handle drag over event
+            function handleDragOver(e) {
+                e.preventDefault();
+                dropzone.classList.add('active');
+            }
+
+            // Handle drag leave event
+            function handleDragLeave() {
+                dropzone.classList.remove('active');
+            }
+
+            // Handle drop event
+            function handleDrop(e) {
+                e.preventDefault();
+                dropzone.classList.remove('active');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            }
+
+            // Handle file selection via input
+            function handleFileSelect(e) {
+                if (e.target.files.length) {
+                    handleFiles(e.target.files);
+                }
+            }
+
+            // Process selected files
+            function handleFiles(files) {
+                filesToUpload = Array.from(files);
+                
+                // Clear previous previews
+                uploadPreview.innerHTML = '';
+                
+                // Check for duplicate files
+                const duplicateFiles = filesToUpload.filter(file => 
+                    documents.some(doc => doc.name === file.name)
+                );
+                
+                if (duplicateFiles.length > 0) {
+                    const fileNames = duplicateFiles.map(f => f.name).join(', ');
+                    alert(`The following files already exist and will be overwritten: ${fileNames}`);
+                }
+                
+                // Create preview items
+                filesToUpload.forEach((file, index) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded mb-2';
+                    previewItem.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="${getFileIcon(file)} text-gray-500 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 truncate" style="max-width: 200px;">${file.name}</p>
+                                <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+                            </div>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700 remove-file" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    uploadPreview.appendChild(previewItem);
+                });
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-file').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                        filesToUpload.splice(index, 1);
+                        handleFiles(filesToUpload); // Re-render
+                    });
+                });
+            }
+
+            // Get appropriate icon for file type
+            function getFileIcon(file) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                switch(ext) {
+                    case 'pdf':
+                        return 'fas fa-file-pdf';
+                    case 'doc':
+                    case 'docx':
+                        return 'fas fa-file-word';
+                    case 'ppt':
+                    case 'pptx':
+                        return 'fas fa-file-powerpoint';
+                    case 'xls':
+                    case 'xlsx':
+                        return 'fas fa-file-excel';
+                    case 'jpg':
+                    case 'jpeg':
+                    case 'png':
+                    case 'gif':
+                        return 'fas fa-file-image';
+                    case 'txt':
+                        return 'fas fa-file-alt';
+                    default:
+                        return 'fas fa-file';
+                }
+            }
+
+            // Get MIME type for file
+            function getMimeType(type) {
+                const types = {
+                    'pdf': 'application/pdf',
+                    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'ppt': 'application/vnd.ms-powerpoint',
+                    'xls': 'application/vnd.ms-excel',
+                    'img': 'image/jpeg',
+                    'txt': 'text/plain'
+                };
+                return types[type] || 'application/octet-stream';
+            }
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Handle file upload
+            function handleFileUpload() {
+                if (filesToUpload.length === 0) {
+                    alert('Please select files to upload');
+                    return;
+                }
+                
+                // Show progress container
+                uploadProgress.classList.remove('hidden');
+                uploadProgress.innerHTML = '<h4 class="text-sm font-medium text-gray-700">Uploading files:</h4>';
+                
+                // Disable upload button during upload
+                startUploadBtn.disabled = true;
+                startUploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Uploading...';
+                
+                // Simulate upload progress for each file
+                filesToUpload.forEach((file, index) => {
+                    // Create progress container for this file
+                    const progressContainer = document.createElement('div');
+                    progressContainer.className = 'progress-container';
+                    progressContainer.innerHTML = `
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs font-medium text-gray-700 truncate" style="max-width: 150px;">${file.name}</span>
+                            <span class="text-xs font-medium text-gray-700">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-indigo-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                        </div>
+                    `;
+                    uploadProgress.appendChild(progressContainer);
+                    
+                    // Simulate upload progress
+                    simulateUploadProgress(progressContainer, file, index);
+                });
+            }
+            
+            // Simulate file upload progress (in a real app, this would be an actual upload)
+            function simulateUploadProgress(container, file, index) {
+                let progress = 0;
+                const progressBar = container.querySelector('.progress-bar');
+                const progressText = container.querySelector('span:last-child');
+                
+                const interval = setInterval(() => {
+                    progress += Math.floor(Math.random() * 10) + 5;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        
+                        // Add the uploaded file to documents
+                        setTimeout(() => {
+                            const ext = file.name.split('.').pop().toLowerCase();
+                            let type;
+                            if (ext === 'pdf') type = 'pdf';
+                            else if (ext === 'doc' || ext === 'docx') type = 'docx';
+                            else if (ext === 'ppt' || ext === 'pptx') type = 'ppt';
+                            else if (ext === 'xls' || ext === 'xlsx') type = 'xls';
+                            else if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) type = 'img';
+                            else type = 'txt';
+                            
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const newDoc = {
+                                    id: Date.now() + index,
+                                    name: file.name,
+                                    type: type,
+                                    size: formatFileSize(file.size),
+                                    uploaded: 'Just now',
+                                    content: e.target.result
+                                };
+                                documents.unshift(newDoc);
+                            };
+                            reader.readAsText(file);
+                            
+                            documents.unshift(newDoc);
+                            
+                            // Check if this was the last file
+                            if (index === filesToUpload.length - 1) {
+                                // Update UI after all files are "uploaded"
+                                setTimeout(() => {
+                                    resetUploadForm();
+                                    updateDocumentStats();
+                                    renderDocuments();
+                                    toggleModal(uploadModal);
+                                    alert('Files uploaded successfully!');
+                                }, 500);
+                            }
+                        }, 300);
+                    }
+                    
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `${progress}%`;
+                }, 100);
+            }
+            
+            // Reset upload form
+            function resetUploadForm() {
+                filesToUpload = [];
+                fileUpload.value = '';
+                uploadPreview.innerHTML = '';
+                uploadProgress.innerHTML = '';
+                uploadProgress.classList.add('hidden');
+                startUploadBtn.disabled = false;
+                startUploadBtn.innerHTML = 'Upload Files';
+                dropzone.classList.remove('active');
+            }
+
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>
